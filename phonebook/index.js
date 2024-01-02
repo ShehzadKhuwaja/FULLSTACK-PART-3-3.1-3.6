@@ -25,9 +25,21 @@ let phonebookEntries = [
     }
 ]
 
-app.use(morgan('tiny'))
-app.use(express.json())
 
+app.use(express.json())
+app.use(morgan((tokens, req, res) => {
+    return [
+        tokens.method(req, res),
+        tokens.url(req, res),
+        tokens.status(req, res, 'content-length'),
+        '-',
+        tokens['response-time'](req, res),
+        'ms',
+        JSON.stringify(req.body),
+    ].join(' ')
+}))
+
+morgan.token('body', (req) => JSON.stringify(req.body))
 
 app.get('/', (request, response) => {
   response.send('<h1>Hello World!</h1>')
